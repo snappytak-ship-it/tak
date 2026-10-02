@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>차세대 모바일 AP 발열 정밀 분석 장비 도입 제안서</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Chart.js for 5-Axis Radar Chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Google Fonts: Pretendard & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Candidate 2: Pastel Sky & Periwinkle Theme Tokens */
+    :root {
+      --bg-canvas: #F0F7FF;
+      --bg-surface: #FFFFFF;
+      --bg-subtle: #E0F2FE;
+      --border-soft: #BAE6FD;
+      --border-hover: #38BDF8;
+      --text-title: #0C4A6E;
+      --text-body: #1E293B;
+      --text-muted: #64748B;
+      --accent-primary: #0284C7;
+      --accent-hover: #0369A1;
+      --accent-light: #38BDF8;
+      --accent-mist: #F0F9FF;
+      --badge-bg: #E0F2FE;
+      --badge-text: #0369A1;
+      --danger: #EF4444;
+      --warning: #F59E0B;
+      --success: #0284C7;
+      --shadow-sky: 0 10px 25px -5px rgba(2, 132, 199, 0.08), 0 8px 10px -6px rgba(2, 132, 199, 0.04);
+      --card-shadow: 0 4px 20px -2px rgba(12, 74, 110, 0.05);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F0F7FF;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #BAE6FD;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #38BDF8;
+    }
+
+    /* Range slider custom styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 22px;
+      width: 22px;
+      border-radius: 50%;
+      background: #0284C7;
+      border: 3px solid #FFFFFF;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+      cursor: pointer;
+      margin-top: -7px;
+      transition: all 0.15s ease-in-out;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      background: #0369A1;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 8px;
+      cursor: pointer;
+      background: #E0F2FE;
+      border-radius: 9999px;
+      border: 1px solid #BAE6FD;
+    }
+
+    /* Glassmorphism accents */
+    .glass-header {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .pulse-dot {
+      animation: pulseGlow 2s infinite;
+    }
+    @keyframes pulseGlow {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8)); }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+  </style>
+</head>
+<body class="bg-[#F0F7FF] text-[#1E293B] antialiased min-h-screen selection:bg-[#BAE6FD] selection:text-[#0C4A6E]">
+
+  <!-- Top Navigation & Sticky Header -->
+  <header class="sticky top-0 z-40 glass-header border-b border-[#BAE6FD]/80 transition-all duration-300">
+    <!-- Reading Progress Bar -->
+    <div class="w-full bg-[#E0F2FE] h-1">
+      <div id="scrollProgress" class="bg-gradient-to-r from-[#38BDF8] to-[#0284C7] h-1 w-0 transition-all duration-150"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="w-3 h-3 rounded-full bg-[#0284C7] pulse-dot"></span>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-bold tracking-widest uppercase bg-[#E0F2FE] text-[#0369A1] px-2 py-0.5 rounded-md border border-[#BAE6FD]">
+              R&D Board Review
+            </span>
+            <span class="text-xs font-mono font-semibold text-slate-400">DOC-OOOO</span>
+          </div>
+          <h1 class="text-sm sm:text-base font-extrabold text-[#0C4A6E] tracking-tight">
+            차세대 플래그십 AP 정밀 열분석 장비(Cooled MWIR) 도입 제안
+          </h1>
+        </div>
+      </div>
+
+      <!-- Quick Section Anchor Links (Desktop) -->
+      <nav class="hidden lg:flex items-center gap-1 text-xs font-semibold text-[#0369A1]">
+        <a href="#section1" class="px-2.5 py-1.5 rounded-lg hover:bg-[#E0F2FE] transition">1.경영요약</a>
+        <a href="#section2" class="px-2.5 py-1.5 rounded-lg hover:bg-[#E0F2FE] transition">2.열확산탐색</a>
+        <a href="#section3" class="px-2.5 py-1.5 rounded-lg hover:bg-[#E0F2FE] transition">3.4대스펙</a>
+        <a href="#section4" class="px-2.5 py-1.5 rounded-lg hover:bg-[#E0F2FE] transition">4.장비비교</a>
+        <a href="#section5" class="px-2.5 py-1.5 rounded-lg hover:bg-[#E0F2FE] transition">5.ROI시뮬레이터</a>
+        <a href="#section6" class="px-2.5 py-1.5 rounded-lg hover:bg-[#E0F2FE] transition">6.의결승인</a>
+      </nav>
+
+      <!-- Fast Action Buttons -->
+      <div class="flex items-center gap-2">
+        <a href="#section6" class="inline-flex items-center gap-1.5 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-sm hover:shadow-md transition transform active:scale-95">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <span class="hidden sm:inline">데모 승인</span> 바로가기
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+
+    <!-- SECTION 1: Executive Summary & Value Metrics -->
+    <section id="section1" class="space-y-6">
+      
+      <!-- Proposal Title Banner -->
+      <div class="bg-gradient-to-br from-white via-white to-[#F0F7FF] rounded-3xl p-6 sm:p-10 border border-[#BAE6FD] shadow-[var(--shadow-sky)] relative overflow-hidden">
+        <div class="absolute -right-12 -top-12 w-80 h-80 rounded-full bg-[#BAE6FD]/40 blur-3xl pointer-events-none"></div>
+        <div class="absolute right-1/4 -bottom-10 w-60 h-60 rounded-full bg-[#38BDF8]/20 blur-2xl pointer-events-none"></div>
+        
+        <div class="relative z-10 space-y-5">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]">
+              <span class="w-2 h-2 rounded-full bg-[#0284C7]"></span>
+              최고경영진 의결 안건
+            </span>
+            <span class="text-xs font-mono font-bold text-slate-500 bg-white/80 px-2.5 py-1 rounded-full border border-slate-200">
+              Cooled MWIR 초고속 열해석 솔루션
+            </span>
+          </div>
+
+          <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <div class="space-y-3">
+              <!-- Clear & Punchy Main Headline -->
+              <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black text-[#0C4A6E] tracking-tight leading-tight">
+                AP 마스크 Revision 1회 방어<br class="hidden sm:block">
+                <span class="text-[#0284C7]">직접비 OO억 절감</span> <span class="text-lg sm:text-2xl font-bold text-slate-500">(순익 OO억)</span> & <span class="text-[#0C4A6E]">적기 출시</span>
+              </h2>
+              
+              <!-- Compact 2-Line Key Proposition -->
+              <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs sm:text-sm font-semibold text-slate-600 pt-1">
+                <span class="flex items-center gap-1.5 text-[#0369A1]">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#0284C7]"></span>
+                  10~50ms 과도 핫스팟(Transient Hotspot) 핀포인트 식별
+                </span>
+                <span class="hidden sm:inline text-slate-300">|</span>
+                <span class="flex items-center gap-1.5 text-[#0369A1]">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#0284C7]"></span>
+                  전면 재설계 리스크 원천 차단 (Time-to-Market 확보)
+                </span>
+              </div>
+            </div>
+
+            <!-- View Mode Switcher -->
+            <div class="bg-[#F0F7FF] p-1.5 rounded-2xl border border-[#BAE6FD] flex items-center shrink-0 text-xs font-semibold">
+              <button id="btnModeSummary" onclick="toggleExecutiveView('summary')" class="px-3.5 py-2 rounded-xl bg-white text-[#0C4A6E] font-bold shadow-sm transition">
+                ⚡ 3분 핵심 요약
+              </button>
+              <button id="btnModeDetail" onclick="toggleExecutiveView('detail')" class="px-3.5 py-2 rounded-xl text-[#64748B] hover:text-[#0C4A6E] transition">
+                🔬 상세 R&D 데이터
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Executive KPI Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        
+        <!-- KPI Card 1 -->
+        <div class="bg-white rounded-3xl p-6 border-2 border-[#BAE6FD] shadow-[var(--shadow-sky)] hover:border-[#0284C7] transition-all duration-300 group">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-[#0369A1] tracking-wider uppercase">과도 발열 포착 속도</span>
+            <span class="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#E0F2FE] text-[#0284C7]">Speed</span>
+          </div>
+          <div class="mt-3 flex items-baseline gap-1">
+            <span class="text-4xl lg:text-5xl font-extrabold font-mono text-[#0C4A6E]">10~50</span>
+            <span class="text-xl font-bold text-[#0284C7]">ms</span>
+          </div>
+          <p class="text-xs text-[#64748B] mt-2 font-medium">
+            열 확산 전 <strong class="text-[#0C4A6E]">최초 진원지 100% 식별</strong>
+          </p>
+          <div class="mt-4 pt-3 border-t border-[#E0F2FE] flex items-center justify-between text-xs text-[#0369A1]">
+            <span class="font-semibold">기존 30Hz 대비 33배 고속</span>
+            <span class="font-bold font-mono">1,000Hz+</span>
+          </div>
+          <div class="hidden-detail mt-3 p-2.5 rounded-xl bg-[#F0F7FF] text-xs text-[#0C4A6E] border border-[#BAE6FD] hidden">
+            실리콘 열확산 이전 빅코어 전력 스파이크를 물리적으로 분리 기록.
+          </div>
+        </div>
+
+        <!-- KPI Card 2 -->
+        <div class="bg-white rounded-3xl p-6 border-2 border-[#BAE6FD] shadow-[var(--shadow-sky)] hover:border-[#0284C7] transition-all duration-300 group">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-[#0369A1] tracking-wider uppercase">직접 개발비 절감</span>
+            <span class="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#E0F2FE] text-[#0284C7]">Savings</span>
+          </div>
+          <div class="mt-3 flex items-baseline gap-1">
+            <span class="text-4xl lg:text-5xl font-extrabold font-mono text-[#0284C7]">OO</span>
+            <span class="text-xl font-bold text-[#0C4A6E]">억 원</span>
+          </div>
+          <p class="text-xs text-[#64748B] mt-2 font-medium">
+            마스크 Revision 1회 방어 (장비비 공제 후 <strong class="text-[#0284C7]">순익 OO억</strong>)
+          </p>
+          <div class="mt-4 pt-3 border-t border-[#E0F2FE] flex items-center justify-between text-xs text-[#0369A1]">
+            <span class="font-semibold">투자 대비 순편익</span>
+            <span class="font-bold font-mono text-emerald-600">+OO억 원</span>
+          </div>
+          <div class="hidden-detail mt-3 p-2.5 rounded-xl bg-[#F0F7FF] text-xs text-[#0C4A6E] border border-[#BAE6FD] hidden">
+            첨단 풀마스크 1회 제작비(OO억) 기준. 도입가(OO억)를 OO배 상회 회수.
+          </div>
+        </div>
+
+        <!-- KPI Card 3 -->
+        <div class="bg-white rounded-3xl p-6 border-2 border-[#BAE6FD] shadow-[var(--shadow-sky)] hover:border-[#0284C7] transition-all duration-300 group">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-[#0369A1] tracking-wider uppercase">투자비 회수 기간 (ROI)</span>
+            <span class="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#E0F2FE] text-[#0284C7]">Payback</span>
+          </div>
+          <div class="mt-3 flex items-baseline gap-1">
+            <span class="text-4xl lg:text-5xl font-extrabold font-mono text-[#0C4A6E]">OO</span>
+            <span class="text-xl font-bold text-[#0284C7]">개월</span>
+          </div>
+          <p class="text-xs text-[#64748B] mt-2 font-medium">
+            초도 1회 리비전 단축으로 <strong class="text-[#0C4A6E]">장비비 즉시 전액 회수</strong>
+          </p>
+          <div class="mt-4 pt-3 border-t border-[#E0F2FE] flex items-center justify-between text-xs text-[#0369A1]">
+            <span class="font-semibold">투자 수익률 (ROI)</span>
+            <span class="font-bold font-mono text-emerald-600">OO% 달성</span>
+          </div>
+          <div class="hidden-detail mt-3 p-2.5 rounded-xl bg-[#F0F7FF] text-xs text-[#0C4A6E] border border-[#BAE6FD] hidden">
+            플래그십 세트 출시 지연 기회손실(일일 OO억 원) 방어 효과 미포함 수치.
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- SECTION 2: Current Bottleneck & Heat Diffusion Explorer -->
+    <section id="section2" class="space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-[#BAE6FD] pb-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#E0F2FE] text-[#0369A1]">Section 02</span>
+            <h3 class="text-xl sm:text-2xl font-black text-[#0C4A6E]">현행 방식의 한계 & 10~50ms 열 확산 검증</h3>
+          </div>
+          <p class="text-xs sm:text-sm text-[#64748B] mt-1">
+            실리콘 내 급속 열 확산 과정에서 왜 기존 측정방식이 무력화되는지 실시간 시뮬레이션으로 검증합니다.
+          </p>
+        </div>
+        <div class="text-xs font-semibold text-[#0369A1] bg-white px-3 py-1.5 rounded-xl border border-[#BAE6FD] shadow-sm shrink-0">
+          💡 슬라이더 조작으로 시간별 열 번짐 관찰
+        </div>
+      </div>
+
+      <!-- Heat Diffusion Simulator & Camera Mode Interactive Box -->
+      <div class="bg-white rounded-3xl p-6 border border-[#BAE6FD] shadow-[var(--shadow-sky)] space-y-6">
+        
+        <!-- Controls Bar -->
+        <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-[#F0F7FF] p-4 rounded-2xl border border-[#BAE6FD]">
+          <div class="flex-1 space-y-1.5">
+            <div class="flex justify-between items-center text-xs font-bold text-[#0C4A6E]">
+              <span>실리콘 다이 열 확산 경과 시간</span>
+              <span id="labelTimeElapsed" class="font-mono text-sm font-extrabold text-[#0284C7] bg-white px-2 py-0.5 rounded-md border border-[#BAE6FD]">
+                15 ms
+              </span>
+            </div>
+            <input id="sliderThermalTime" type="range" min="0" max="100" value="15" step="5" oninput="updateThermalSim()" class="w-full">
+            <div class="flex justify-between text-[11px] font-mono text-[#64748B]">
+              <span>0ms (버스트)</span>
+              <span class="font-bold text-[#0284C7]">15ms (진원지 국한)</span>
+              <span>50ms (인접 번짐)</span>
+              <span class="text-rose-600 font-bold">100ms (열평형 오염)</span>
+            </div>
+          </div>
+
+          <!-- Camera Mode Toggle -->
+          <div class="flex items-center gap-2 border-t md:border-t-0 md:border-l border-[#BAE6FD] pt-3 md:pt-0 md:pl-5 shrink-0">
+            <span class="text-xs font-bold text-[#475569]">카메라:</span>
+            <div class="flex gap-1.5">
+              <button id="btnCam30Hz" onclick="setCameraMode(30)" class="px-3 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition">
+                일반 30Hz
+              </button>
+              <button id="btnCam1000Hz" onclick="setCameraMode(1000)" class="px-3 py-2 rounded-xl text-xs font-bold border border-[#0284C7] bg-[#0284C7] text-white shadow-sm transition">
+                ★ 1,000Hz Cooled MWIR
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Simulation Visualization Canvas Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          
+          <!-- Virtual AP Die Canvas -->
+          <div class="lg:col-span-7 bg-[#0C1E33] rounded-2xl p-4 sm:p-5 border border-slate-700 relative overflow-hidden shadow-inner flex flex-col items-center">
+            <div class="w-full flex justify-between items-center mb-2 px-1 text-xs text-sky-200">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span class="font-mono">AP DIE (10mm × 10mm)</span>
+              </div>
+              <span id="canvasStatusBadge" class="px-2 py-0.5 rounded text-[11px] font-mono bg-sky-900/80 text-sky-300 border border-sky-600">
+                15ms: Big-Core Pinpoint Isolated
+              </span>
+            </div>
+
+            <div class="w-full max-w-[380px] aspect-square relative rounded-xl overflow-hidden border-2 border-slate-600 bg-slate-900">
+              <canvas id="apThermalCanvas" width="400" height="400" class="w-full h-full block"></canvas>
+              
+              <div class="absolute top-2 left-2 text-[10px] font-mono text-slate-400 pointer-events-none bg-black/50 px-1.5 py-0.5 rounded">
+                CPU Big-Core 1 (Source)
+              </div>
+              <div class="absolute bottom-2 right-2 text-[10px] font-mono text-slate-400 pointer-events-none bg-black/50 px-1.5 py-0.5 rounded">
+                NPU & L3 Cache
+              </div>
+            </div>
+
+            <div class="w-full flex justify-between text-[11px] text-slate-400 mt-2 px-1">
+              <span>Low (35°C) 🟦</span>
+              <span>Medium (55°C) 🟨</span>
+              <span>Critical (85°C+) 🟥</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Analysis Narrative (Short & Crisp) -->
+          <div class="lg:col-span-5 space-y-3.5">
+            <div id="simVerdictCard" class="rounded-2xl p-4 border bg-[#E0F2FE] border-[#BAE6FD] space-y-1.5">
+              <div class="flex items-center gap-2">
+                <span id="simVerdictIcon" class="w-5 h-5 rounded-full bg-[#0284C7] text-white flex items-center justify-center text-xs font-bold">✓</span>
+                <h4 id="simVerdictTitle" class="text-xs sm:text-sm font-extrabold text-[#0C4A6E]">
+                  15ms - 최초 발열 진원지 100% 분리 성공
+                </h4>
+              </div>
+              <p id="simVerdictDesc" class="text-xs text-[#0369A1] leading-relaxed">
+                열 전도 전 단계. CPU Big-Core #1 서브블록이 원인임을 특정하여 <strong>마스크 전면 수정 없이 국소 메탈 레이어(ECO) 수정만으로 종결 가능</strong>합니다.
+              </p>
+            </div>
+
+            <!-- Current Limitations: Compact 3 Rows -->
+            <div class="space-y-1.5">
+              <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">현행 방식의 핵심 한계</div>
+              
+              <div onclick="openBottleneckModal('dts')" class="cursor-pointer p-2.5 rounded-xl bg-white hover:bg-[#F0F7FF] border border-[#BAE6FD] transition flex items-center justify-between group">
+                <div class="flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                  <span class="text-xs font-bold text-[#0C4A6E]">1. 온칩 DTS 센서</span>
+                  <span class="text-[11px] text-slate-500 hidden sm:inline">- 센서 외 위치 핫스팟 블라인드</span>
+                </div>
+                <span class="text-[11px] font-bold text-[#0284C7]">상세 →</span>
+              </div>
+
+              <div onclick="openBottleneckModal('thermocouple')" class="cursor-pointer p-2.5 rounded-xl bg-white hover:bg-[#F0F7FF] border border-[#BAE6FD] transition flex items-center justify-between group">
+                <div class="flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                  <span class="text-xs font-bold text-[#0C4A6E]">2. 접촉식 열전대</span>
+                  <span class="text-[11px] text-slate-500 hidden sm:inline">- 접촉 부위 열 왜곡 및 칩 파손 위험</span>
+                </div>
+                <span class="text-[11px] font-bold text-[#0284C7]">상세 →</span>
+              </div>
+
+              <div onclick="openBottleneckModal('diffusion')" class="cursor-pointer p-2.5 rounded-xl bg-white hover:bg-[#F0F7FF] border border-[#BAE6FD] transition flex items-center justify-between group">
+                <div class="flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                  <span class="text-xs font-bold text-[#0C4A6E]">3. 저속 30Hz 카메라</span>
+                  <span class="text-[11px] text-slate-500 hidden sm:inline">- 첫 셔터(33ms) 전 이미 열확산 완료</span>
+                </div>
+                <span class="text-[11px] font-bold text-[#0284C7]">상세 →</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- SECTION 3: The 4 Non-Negotiable Specs -->
+    <section id="section3" class="space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-[#BAE6FD] pb-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#E0F2FE] text-[#0369A1]">Section 03</span>
+            <h3 class="text-xl sm:text-2xl font-black text-[#0C4A6E]">4대 절대 검증 사양 탐색기</h3>
+          </div>
+          <p class="text-xs sm:text-sm text-[#64748B] mt-1">
+            물리적 한계를 돌파하기 위한 4대 필수 스펙과 미달 시 영향을 직관적으로 확인합니다.
+          </p>
+        </div>
+        <span class="text-xs text-[#0369A1] font-semibold">스펙 카드를 클릭하면 비교 뷰가 전환됩니다</span>
+      </div>
+
+      <!-- 4 Quadrant Interactive Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Spec Card 1 -->
+        <div onclick="selectSpecDetail(1)" id="specCard1" class="cursor-pointer bg-white rounded-3xl p-5 border-2 border-[#0284C7] shadow-sm hover:shadow-md transition-all duration-300">
+          <div class="flex justify-between items-start">
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-[#E0F2FE] text-[#0284C7]">① 시력</span>
+            <span class="text-base">👁️</span>
+          </div>
+          <h4 class="mt-2 text-sm font-extrabold text-[#0C4A6E]">센서 해상도</h4>
+          <div class="mt-1 text-2xl font-extrabold font-mono text-[#0284C7]">
+            1280 × 1024
+          </div>
+          <p class="mt-1 text-xs text-[#64748B]">
+            10mm 다이 전체를 HD급 고밀도로 왜곡 없이 동시 관측
+          </p>
+          <div class="mt-3 pt-2.5 border-t border-[#E0F2FE] flex items-center justify-between text-[11px] font-semibold text-[#0369A1]">
+            <span>기준: HD급 1.3MP+</span>
+            <span>비교 보기 →</span>
+          </div>
+        </div>
+
+        <!-- Spec Card 2 -->
+        <div onclick="selectSpecDetail(2)" id="specCard2" class="cursor-pointer bg-white rounded-3xl p-5 border-2 border-transparent hover:border-[#BAE6FD] shadow-sm hover:shadow-md transition-all duration-300">
+          <div class="flex justify-between items-start">
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">② 돋보기</span>
+            <span class="text-base">🔬</span>
+          </div>
+          <h4 class="mt-2 text-sm font-extrabold text-[#0C4A6E]">공간 분해능</h4>
+          <div class="mt-1 text-2xl font-extrabold font-mono text-[#0C4A6E]">
+            3 ~ 5 <span class="text-sm font-sans font-bold">μm</span>
+          </div>
+          <p class="mt-1 text-xs text-[#64748B]">
+            빅코어와 L2/L3 캐시 간의 물리적 경계를 핀포인트 분리
+          </p>
+          <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-slate-500">
+            <span>기준: 4x/5x 현미경 렌즈</span>
+            <span>비교 보기 →</span>
+          </div>
+        </div>
+
+        <!-- Spec Card 3 -->
+        <div onclick="selectSpecDetail(3)" id="specCard3" class="cursor-pointer bg-white rounded-3xl p-5 border-2 border-transparent hover:border-[#BAE6FD] shadow-sm hover:shadow-md transition-all duration-300">
+          <div class="flex justify-between items-start">
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">③ 고속 셔터</span>
+            <span class="text-base">⚡</span>
+          </div>
+          <h4 class="mt-2 text-sm font-extrabold text-[#0C4A6E]">프레임 레이트</h4>
+          <div class="mt-1 text-2xl font-extrabold font-mono text-[#0C4A6E]">
+            1,000+ <span class="text-sm font-sans font-bold">Hz</span>
+          </div>
+          <p class="mt-1 text-xs text-[#64748B]">
+            1ms 단위 촬영으로 10~50ms 과도 상태를 50컷 정밀 분해
+          </p>
+          <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-slate-500">
+            <span>기준: 윈도잉 1,000Hz+</span>
+            <span>비교 보기 →</span>
+          </div>
+        </div>
+
+        <!-- Spec Card 4 -->
+        <div onclick="selectSpecDetail(4)" id="specCard4" class="cursor-pointer bg-white rounded-3xl p-5 border-2 border-transparent hover:border-[#BAE6FD] shadow-sm hover:shadow-md transition-all duration-300">
+          <div class="flex justify-between items-start">
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">④ 냉각 센서</span>
+            <span class="text-base">❄️</span>
+          </div>
+          <h4 class="mt-2 text-sm font-extrabold text-[#0C4A6E]">센서 종류</h4>
+          <div class="mt-1 text-2xl font-extrabold font-mono text-[#0C4A6E]">
+            Cooled InSb
+          </div>
+          <p class="mt-1 text-xs text-[#64748B]">
+            스털링 극저온(-196°C) 냉각으로 0.02°C(NETD ≤ 20mK) 감지
+          </p>
+          <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-slate-500">
+            <span>비냉각 볼로미터 배제</span>
+            <span>비교 보기 →</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Spec Comparison Detail Interactive Screen -->
+      <div class="bg-white rounded-3xl p-5 sm:p-6 border border-[#BAE6FD] shadow-[var(--shadow-sky)] space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#0284C7]"></span>
+            <h4 id="activeSpecTitle" class="text-sm sm:text-base font-bold text-[#0C4A6E]">
+              스펙 ① 센서 해상도 (1280×1024 vs 320×240) 비교
+            </h4>
+          </div>
+          <span class="text-[11px] font-mono text-[#0369A1] bg-[#E0F2FE] px-2 py-0.5 rounded-md font-semibold">Impact Comparison</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <!-- Non-compliant Case -->
+          <div class="rounded-2xl p-4 border border-rose-200 bg-rose-50/50 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-rose-100 text-rose-700">미달 시 (일반 장비)</span>
+              <span class="text-xs font-mono text-rose-600 font-semibold">320 × 240</span>
+            </div>
+            <div id="specComparisonBadDesc" class="text-xs text-rose-900 leading-relaxed">
+              픽셀 크기가 커서 코어 1개가 단 2~3개 픽셀로 뭉개짐. 핫스팟이 연산기 내부인지 버스 라인인지 구분 불가하여 엉뚱한 레이아웃 수정 초래.
+            </div>
+            <div class="h-20 rounded-xl bg-slate-900 border border-rose-300 flex items-center justify-center text-xs text-rose-300 font-mono text-center p-2">
+              [ 모자이크 픽셀 블러 현상 ]<br>
+              <span class="text-[11px] text-slate-400">코어 간 물리적 경계 판별 불가</span>
+            </div>
+          </div>
+
+          <!-- Compliant Case -->
+          <div class="rounded-2xl p-4 border border-[#BAE6FD] bg-[#F0F7FF] space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-[#E0F2FE] text-[#0369A1]">도입 사양 (Cooled MWIR)</span>
+              <span class="text-xs font-mono text-[#0284C7] font-semibold">1280 × 1024 HD InSb</span>
+            </div>
+            <div id="specComparisonGoodDesc" class="text-xs text-[#0C4A6E] leading-relaxed">
+              131만 화소 고밀도로 칩 전체를 한눈에 보며 현미경 렌즈 연동 시 코어 내부 연산기(ALU)와 캐시 태그 경계선이 칼같이 분리 관측됨.
+            </div>
+            <div class="h-20 rounded-xl bg-slate-900 border border-[#38BDF8] flex items-center justify-center text-xs text-sky-300 font-mono text-center p-2">
+              [ 핀포인트 초고화질 렌더링 ]<br>
+              <span class="text-[11px] text-emerald-400">서브블록 격리 & 원인 규명 100%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SECTION 4: Hardware Comparison & Verdict Matrix -->
+    <section id="section4" class="space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-[#BAE6FD] pb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#E0F2FE] text-[#0369A1]">Section 04</span>
+            <h3 class="text-xl sm:text-2xl font-black text-[#0C4A6E]">장비 정량 비교 및 종합 판정기</h3>
+          </div>
+          <p class="text-xs sm:text-sm text-[#64748B] mt-1">
+            기존 보유 장비 및 휴대형 모델과 4대 절대 검증 사양을 1:1로 엄격히 대조합니다.
+          </p>
+        </div>
+        
+        <!-- Filter Tabs -->
+        <div class="flex items-center gap-1.5 bg-white p-1 rounded-2xl border border-[#BAE6FD] text-xs font-semibold">
+          <button id="btnCompTabAll" onclick="setCompareView('all')" class="px-3 py-1.5 rounded-xl bg-[#0284C7] text-white">전체 보기</button>
+          <button id="btnCompTabSpecs" onclick="setCompareView('specs')" class="px-3 py-1.5 rounded-xl text-slate-600 hover:text-slate-900">4대 스펙만</button>
+          <button id="btnCompTabRadar" onclick="setCompareView('radar')" class="px-3 py-1.5 rounded-xl text-slate-600 hover:text-slate-900">5축 레이더 차트</button>
+        </div>
+      </div>
+
+      <!-- Comparison Matrix Table -->
+      <div id="tableCompareWrapper" class="bg-white rounded-3xl border border-[#BAE6FD] shadow-[var(--shadow-sky)] overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm border-collapse">
+            <thead>
+              <tr class="bg-[#F0F7FF] border-b border-[#BAE6FD]">
+                <th class="py-4 px-5 font-bold text-[#0C4A6E] w-1/4">평가 지표 (4대 스펙 중심)</th>
+                <th class="py-4 px-4 font-semibold text-slate-500 w-1/4">FLIR ETS320 (탁상용)</th>
+                <th class="py-4 px-4 font-semibold text-slate-500 w-1/4">FLIR T1010 (휴대용)</th>
+                <th class="py-4 px-5 font-extrabold text-[#0C4A6E] bg-[#E0F2FE] border-x border-[#BAE6FD] w-1/4">
+                  ★ Cooled MWIR (도입 권고)<br>
+                  <span class="text-[11px] font-normal text-[#0369A1]">FLIR A8580 / ImageIR 8300</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#E0F2FE]">
+              <!-- Row 1: Sensor Type -->
+              <tr class="hover:bg-slate-50/60 transition">
+                <td class="py-3.5 px-5 font-bold text-slate-800 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#0284C7]"></span>
+                  1. 센서 종류 & 감도
+                </td>
+                <td class="py-3.5 px-4 text-slate-600 font-mono text-xs">
+                  비냉각 Microbolometer<br>
+                  <span class="text-rose-600 text-[11px] font-sans font-medium">(NETD &lt; 60mK)</span>
+                </td>
+                <td class="py-3.5 px-4 text-slate-600 font-mono text-xs">
+                  비냉각 VOx 마이크로볼로미터<br>
+                  <span class="text-amber-600 text-[11px] font-sans font-medium">(NETD &lt; 20mK)</span>
+                </td>
+                <td class="py-3.5 px-5 font-bold font-mono text-xs text-[#0284C7] bg-[#F0F7FF]/50 border-x border-[#BAE6FD]">
+                  극저온 스털링 냉각 InSb<br>
+                  <span class="text-emerald-700 text-[11px] font-sans font-bold">★ NETD ≤ 20mK (포톤검출)</span>
+                </td>
+              </tr>
+
+              <!-- Row 2: Resolution -->
+              <tr class="hover:bg-slate-50/60 transition">
+                <td class="py-3.5 px-5 font-bold text-slate-800 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#0284C7]"></span>
+                  2. 센서 해상도
+                </td>
+                <td class="py-3.5 px-4 text-slate-600 font-mono text-xs">320 × 240 (7.6만 화소)</td>
+                <td class="py-3.5 px-4 text-slate-600 font-mono text-xs">1024 × 768 (78만 화소)</td>
+                <td class="py-3.5 px-5 font-bold font-mono text-xs text-[#0284C7] bg-[#F0F7FF]/50 border-x border-[#BAE6FD]">
+                  1280 × 1024 (131만 화소, HD)
+                </td>
+              </tr>
+
+              <!-- Row 3: Spatial Resolution -->
+              <tr class="hover:bg-slate-50/60 transition">
+                <td class="py-3.5 px-5 font-bold text-slate-800 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#0284C7]"></span>
+                  3. 공간 분해능 (픽셀당)
+                </td>
+                <td class="py-3.5 px-4 text-rose-600 font-mono text-xs font-semibold">170 μm (다이 전체 뭉개짐)</td>
+                <td class="py-3.5 px-4 text-amber-600 font-mono text-xs font-semibold">51 μm (블록 경계 혼재)</td>
+                <td class="py-3.5 px-5 font-bold font-mono text-xs text-[#0284C7] bg-[#F0F7FF]/50 border-x border-[#BAE6FD]">
+                  3 ~ 5 μm (현미경 렌즈 직결)
+                </td>
+              </tr>
+
+              <!-- Row 4: Frame Rate -->
+              <tr class="hover:bg-slate-50/60 transition">
+                <td class="py-3.5 px-5 font-bold text-slate-800 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#0284C7]"></span>
+                  4. 프레임 레이트 (FPS)
+                </td>
+                <td class="py-3.5 px-4 text-rose-600 font-mono text-xs font-bold">9 Hz (과도포착 불가)</td>
+                <td class="py-3.5 px-4 text-amber-600 font-mono text-xs font-bold">30 Hz (열평형 후 포착)</td>
+                <td class="py-3.5 px-5 font-bold font-mono text-xs text-[#0284C7] bg-[#F0F7FF]/50 border-x border-[#BAE6FD]">
+                  풀 100+ Hz / 윈도잉 1,000+ Hz
+                </td>
+              </tr>
+
+              <!-- Row 5: Max Advantage (Single Key Strength) -->
+              <tr class="bg-slate-50/30">
+                <td class="py-3.5 px-5 font-bold text-slate-700">★ 최대 강점 (1개)</td>
+                <td class="py-3.5 px-4 text-xs text-slate-600">저렴한 도입 단가 (탁상형 검사)</td>
+                <td class="py-3.5 px-4 text-xs text-slate-600">고해상도 휴대형 간편 조작</td>
+                <td class="py-3.5 px-5 text-xs font-bold text-[#0C4A6E] bg-[#F0F7FF]/50 border-x border-[#BAE6FD]">
+                  10~50ms 과도 핫스팟의 물리적 식별 능력
+                </td>
+              </tr>
+
+              <!-- Row 6: Max Weakness (Single Key Weakness) -->
+              <tr class="bg-slate-50/30">
+                <td class="py-3.5 px-5 font-bold text-slate-700">⚠️ 최대 약점 (1개)</td>
+                <td class="py-3.5 px-4 text-xs text-rose-600">극도로 낮은 분해능(170μm) 및 9Hz</td>
+                <td class="py-3.5 px-4 text-xs text-rose-600">비냉각 마이크로볼로미터 시상수 한계(8~12ms)</td>
+                <td class="py-3.5 px-5 text-xs text-slate-600 bg-[#F0F7FF]/50 border-x border-[#BAE6FD]">
+                  스털링 쿨러 소모품 관리(1만시간) 필요
+                </td>
+              </tr>
+
+              <!-- Row 7: Final Verdict -->
+              <tr class="bg-gradient-to-r from-transparent via-transparent to-[#E0F2FE]/40">
+                <td class="py-4 px-5 font-extrabold text-slate-800">종합 판정 결과</td>
+                <td class="py-4 px-4">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-700 border border-rose-300">
+                    ✕ FAIL (부적합)
+                  </span>
+                </td>
+                <td class="py-4 px-4">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800 border border-amber-300">
+                    ⚠️ PARTIAL (한계 명확)
+                  </span>
+                </td>
+                <td class="py-4 px-5 bg-[#E0F2FE] border-x border-b border-[#BAE6FD]">
+                  <span class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black bg-[#0284C7] text-white shadow-sm">
+                    ★ IDEAL MATCH (유일 대안)
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 5-Axis Radar Chart Container (Toggleable) -->
+      <div id="radarChartWrapper" class="bg-white rounded-3xl p-6 sm:p-8 border border-[#BAE6FD] shadow-[var(--shadow-sky)] space-y-4 hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#BAE6FD] pb-3">
+          <div>
+            <h4 class="text-base font-bold text-[#0C4A6E]">5대 핵심 성능 축 레이더 분석 (Chart.js)</h4>
+            <p class="text-xs text-[#64748B]">센서 시력, 미세 분해능, 셔터 속도, 정밀 감도, 과도발열 포착능력의 종합 비교</p>
+          </div>
+          <span class="text-xs text-[#0369A1] font-mono bg-[#E0F2FE] px-2.5 py-1 rounded-lg">5-Axis Performance Radar</span>
+        </div>
+
+        <div class="max-w-xl mx-auto aspect-square p-2">
+          <canvas id="radarCompareCanvas"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SECTION 5: Business Case & ROI Simulator -->
+    <section id="section5" class="space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-[#BAE6FD] pb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#E0F2FE] text-[#0369A1]">Section 05</span>
+            <h3 class="text-xl sm:text-2xl font-black text-[#0C4A6E]">재무적 효과 실시간 시뮬레이터 (ROI Calculator)</h3>
+          </div>
+          <p class="text-xs sm:text-sm text-[#64748B] mt-1">
+            마스크 제작 비용과 단축 횟수를 직접 조정하며 순 절감 편익 및 투자 회수 기간을 즉시 검증합니다.
+          </p>
+        </div>
+        <div class="text-xs font-mono font-bold text-[#0284C7] bg-[#E0F2FE] px-3 py-1.5 rounded-xl border border-[#BAE6FD]">
+          Base Equip Cost: OO억 원
+        </div>
+      </div>
+
+      <!-- ROI Calculator Main Panel -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-[#BAE6FD] shadow-[var(--shadow-sky)]">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          <!-- Sliders and Inputs (Left) -->
+          <div class="lg:col-span-7 space-y-6">
+            
+            <!-- Control 1: Mask Cost Slider -->
+            <div class="space-y-2">
+              <div class="flex justify-between items-center text-xs font-bold text-[#0C4A6E]">
+                <span>첨단 AP 풀마스크 1회 제작 비용</span>
+                <span id="displayMaskCost" class="font-mono text-base font-extrabold text-[#0284C7] bg-[#E0F2FE] px-2.5 py-0.5 rounded-lg border border-[#BAE6FD]">
+                  OO억 원
+                </span>
+              </div>
+              <input id="rangeMaskCost" type="range" min="10" max="25" step="1" value="15" oninput="calculateFinancialROI()" class="w-full">
+              <div class="flex justify-between text-[11px] text-[#64748B] font-mono">
+                <span>OO억 (보수적)</span>
+                <span class="font-bold text-[#0284C7]">OO억 (기준값)</span>
+                <span>OO억 (초미세 공정)</span>
+              </div>
+            </div>
+
+            <!-- Control 2: Revision Reduction Count Radio Buttons -->
+            <div class="space-y-2">
+              <div class="text-xs font-bold text-[#0C4A6E]">마스크 Revision 단축 기대 횟수</div>
+              <div class="grid grid-cols-3 gap-2.5">
+                <button type="button" onclick="setRevisionCount(1)" id="btnRev1" class="py-3 px-3 rounded-2xl border-2 border-[#0284C7] bg-[#E0F2FE] text-xs font-extrabold text-[#0284C7] shadow-sm transition text-center">
+                  ★ 1회 단축<br>
+                  <span class="text-[10px] font-semibold text-[#0369A1]">기준 목표 시나리오</span>
+                </button>
+                <button type="button" onclick="setRevisionCount(2)" id="btnRev2" class="py-3 px-3 rounded-2xl border-2 border-slate-200 text-xs font-bold text-slate-600 hover:border-[#BAE6FD] transition text-center">
+                  2회 단축<br>
+                  <span class="text-[10px] font-normal text-slate-400">추가 최적화 (+OO억)</span>
+                </button>
+                <button type="button" onclick="setRevisionCount(3)" id="btnRev3" class="py-3 px-3 rounded-2xl border-2 border-slate-200 text-xs font-bold text-slate-600 hover:border-[#BAE6FD] transition text-center">
+                  3회 단축<br>
+                  <span class="text-[10px] font-normal text-slate-400">플래그십 성공 시</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Strategic Value Badges -->
+            <div class="pt-4 border-t border-[#E0F2FE] grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div class="p-3 rounded-2xl bg-[#F0F7FF] border border-[#BAE6FD] space-y-1">
+                <div class="font-bold text-[#0C4A6E] flex items-center gap-1.5">
+                  <span>⏱️</span> Time-to-Market 조기 진입
+                </div>
+                <p class="text-[11px] text-[#475569]">
+                  분기당 OO억 원의 플래그십 세트 판매 기회손실 원천 방어
+                </p>
+              </div>
+              <div class="p-3 rounded-2xl bg-[#F0F7FF] border border-[#BAE6FD] space-y-1">
+                <div class="font-bold text-[#0C4A6E] flex items-center gap-1.5">
+                  <span>🛡️</span> 양산 수율 및 PDN 조기 안정화
+                </div>
+                <p class="text-[11px] text-[#475569]">
+                  패키징 및 TIM 설계 최적화로 양산 초기 폐기 비용 대폭 절감
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Dynamic Output Card (Right) -->
+          <div class="lg:col-span-5 bg-gradient-to-br from-[#F0F7FF] to-white rounded-3xl p-6 sm:p-7 border-2 border-[#BAE6FD] shadow-[var(--shadow-sky)] text-center space-y-5">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-[#0369A1] bg-[#E0F2FE] px-3 py-1 rounded-full border border-[#BAE6FD]">
+                Financial Payback Outcome
+              </span>
+              <div class="mt-4 text-xs font-medium text-slate-500">순 재무 효과 (Net Financial Benefit)</div>
+              <div id="resultNetBenefit" class="text-4xl sm:text-5xl font-black font-mono text-[#0284C7] mt-1">
+                +OO<span class="text-xl font-sans font-bold ml-1 text-[#0C4A6E]">억 원</span>
+              </div>
+              <p id="resultFormulaDesc" class="text-xs text-slate-500 mt-2">
+                총 절감액 OO억 원 - 장비비 OO억 원
+              </p>
+            </div>
+
+            <!-- ROI Progress Bar -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs font-semibold text-slate-600">
+                <span>투자 수익률 (ROI)</span>
+                <span id="resultRoiPercent" class="font-mono font-bold text-[#0284C7]">OO%</span>
+              </div>
+              <div class="w-full h-3 rounded-full bg-[#E0F2FE] overflow-hidden p-0.5 border border-[#BAE6FD]">
+                <div id="resultRoiBar" class="h-full rounded-full bg-gradient-to-r from-[#38BDF8] to-[#0284C7] transition-all duration-500" style="width: 45%;"></div>
+              </div>
+            </div>
+
+            <!-- Mini Summary 2-Col -->
+            <div class="grid grid-cols-2 gap-3 pt-3 border-t border-[#BAE6FD] text-left">
+              <div class="bg-white p-3 rounded-xl border border-[#BAE6FD]">
+                <div class="text-[11px] text-slate-400">투자 회수 기간</div>
+                <div class="text-sm font-extrabold text-emerald-600 font-mono mt-0.5">OO 개월 (즉시 회수)</div>
+              </div>
+              <div class="bg-white p-3 rounded-xl border border-[#BAE6FD]">
+                <div class="text-[11px] text-slate-400">총 직접 개발비 절감</div>
+                <div id="resultGrossSavings" class="text-sm font-extrabold text-[#0C4A6E] font-mono mt-0.5">OO 억 원</div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SECTION 6: Action Plan & Sign-off Request -->
+    <section id="section6" class="space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-[#BAE6FD] pb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#E0F2FE] text-[#0369A1]">Section 06</span>
+            <h3 class="text-xl sm:text-2xl font-black text-[#0C4A6E]">추진 로드맵 및 의결 승인 (Sign-off)</h3>
+          </div>
+          <p class="text-xs sm:text-sm text-[#64748B] mt-1">
+            '선(先) 실장 검증, 후(後) 구매'라는 리스크 제로 절차를 통해 신속한 R&D 벤치마킹 데모를 추진합니다.
+          </p>
+        </div>
+        <span class="text-xs text-[#0369A1] font-semibold bg-white px-3 py-1.5 rounded-xl border border-[#BAE6FD]">
+          3단계 추진 계획
+        </span>
+      </div>
+
+      <!-- 3-Phase Interactive Accordion Roadmap -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <!-- Phase 1 -->
+        <div class="bg-white rounded-3xl p-5 border border-[#BAE6FD] shadow-[var(--shadow-sky)] space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#E0F2FE] text-[#0369A1]">Phase 1 (당월)</span>
+            <span class="text-xs font-mono font-bold text-slate-400">Step 01</span>
+          </div>
+          <h4 class="text-base font-extrabold text-[#0C4A6E]">기술 사양 RFQ 발송</h4>
+          <p class="text-xs text-[#64748B] leading-relaxed">
+            4대 검증 사양을 만족하는 숏리스트 2개 사(FLIR A8580, InfraTec ImageIR 8300) 공식 기술 견적 및 렌즈 호환성 접수
+          </p>
+          <ul class="text-[11px] text-[#475569] space-y-1 bg-[#F0F7FF] p-2.5 rounded-xl border border-[#BAE6FD]">
+            <li>• 현미경 대물렌즈(4x/5x) 광학 마운트 확정</li>
+            <li>• 1,000Hz 윈도잉 데이터 스트리밍 프로토콜</li>
+          </ul>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="bg-white rounded-3xl p-5 border-2 border-[#0284C7] shadow-[var(--shadow-sky)] space-y-3 relative overflow-hidden">
+          <div class="absolute -right-6 -bottom-6 w-20 h-20 rounded-full bg-[#BAE6FD]/40 blur-xl pointer-events-none"></div>
+          <div class="flex items-center justify-between">
+            <span class="px-2.5 py-0.5 rounded-lg text-xs font-black bg-[#0284C7] text-white">Phase 2 (차월: 본 안건)</span>
+            <span class="text-xs font-mono font-bold text-[#0284C7]">Step 02</span>
+          </div>
+          <h4 class="text-base font-extrabold text-[#0C4A6E]">실장 시료 벤치마킹 데모</h4>
+          <p class="text-xs text-[#0369A1] leading-relaxed font-medium">
+            당사 차세대 플래그십 AP 실장 보드를 공급사 클린룸/연구소로 이송하여 10~50ms 과도 열 포착을 직접 검증
+          </p>
+          <ul class="text-[11px] text-[#0C4A6E] space-y-1 bg-[#E0F2FE] p-2.5 rounded-xl border border-[#BAE6FD] font-medium">
+            <li>• 당사 R&D 엔지니어 참관 블라인드 테스트</li>
+            <li>• 실제 핫스팟 식별 데이터 리포트 경영진 보고</li>
+          </ul>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="bg-white rounded-3xl p-5 border border-[#BAE6FD] shadow-[var(--shadow-sky)] space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#E0F2FE] text-[#0369A1]">Phase 3 (차차월)</span>
+            <span class="text-xs font-mono font-bold text-slate-400">Step 03</span>
+          </div>
+          <h4 class="text-base font-extrabold text-[#0C4A6E]">최종 품의 및 발주 체결</h4>
+          <p class="text-xs text-[#64748B] leading-relaxed">
+            실측 성능 데이터가 우수한 1개 모델을 최종 선정하여 구매 품의 진행 및 차세대 AP 팹 분석 라인 배치 완료
+          </p>
+          <ul class="text-[11px] text-[#475569] space-y-1 bg-[#F0F7FF] p-2.5 rounded-xl border border-[#BAE6FD]">
+            <li>• 장비 납품 및 전담 분석 소프트웨어 교육</li>
+            <li>• AP 마스크 Revision 1회 조기 방어 체계 가동</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Sign-off Decision Box (Interactive Request Box) -->
+      <div class="bg-gradient-to-br from-white via-white to-[#F0F7FF] rounded-3xl p-6 sm:p-8 border-2 border-[#BAE6FD] shadow-[var(--shadow-sky)]">
+        <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
+          <div class="space-y-2">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-[#E0F2FE] text-[#0284C7] border border-[#BAE6FD]">
+              <span class="w-2 h-2 rounded-full bg-[#0284C7] animate-ping"></span>
+              의결 요청 안건 (Action Item)
+            </div>
+            <h3 class="text-xl sm:text-2xl font-black text-[#0C4A6E]">
+              [의결 안건] 당사 차세대 AP 실장 시료 대상 숏리스트 2개 사 현장 벤치마킹 데모 진행 승인
+            </h3>
+            <p class="text-xs sm:text-sm text-[#475569] max-w-2xl leading-relaxed">
+              장비 구매 계약 체결 이전 단계로서, <strong>실제 칩 시료를 대상으로 10~50ms 과도 발열 포착 능력을 사전 실증</strong>하는 데모 진행을 품의합니다. (비용 부담 없음)
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+            <button onclick="openDecisionModal('comment')" class="w-full sm:w-auto px-5 py-3 rounded-2xl border-2 border-[#BAE6FD] bg-white hover:bg-[#F0F7FF] text-[#0C4A6E] font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2">
+              <svg class="w-4 h-4 text-[#0369A1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+              검토 의견 추가
+            </button>
+            <button onclick="approveDemoAction()" class="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#0284C7] hover:bg-[#0369A1] text-white font-extrabold text-xs sm:text-sm shadow-md hover:shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+              현장 데모 진행 즉시 승인
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-xs text-[#64748B] border-t border-[#BAE6FD] mt-12 space-y-2">
+    <div>OO 개발본부 OO 태스크포스</div>
+    <div class="font-mono text-[11px] text-slate-400">Sample - Values masked (OO)</div>
+  </footer>
+
+  <!-- Modal: Bottleneck Information (DTS / Thermocouple / 30Hz) -->
+  <div id="modalBottleneck" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 border border-[#BAE6FD] shadow-2xl space-y-4 animate-scaleUp">
+      <div class="flex items-center justify-between border-b border-[#E0F2FE] pb-3">
+        <h4 id="modalBottleneckTitle" class="text-base font-extrabold text-[#0C4A6E]">현행 방식 한계 상세 분석</h4>
+        <button onclick="closeModal('modalBottleneck')" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
+      </div>
+      <div id="modalBottleneckBody" class="text-xs sm:text-sm text-[#475569] leading-relaxed space-y-2">
+        <!-- Injected via JS -->
+      </div>
+      <div class="pt-3 border-t border-[#E0F2FE] flex justify-end">
+        <button onclick="closeModal('modalBottleneck')" class="px-4 py-2 rounded-xl bg-[#0284C7] text-white text-xs font-bold hover:bg-[#0369A1] transition">
+          확인 및 닫기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Approval Success Certificate -->
+  <div id="modalApproval" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-7 border-2 border-[#0284C7] shadow-2xl text-center space-y-5 animate-scaleUp">
+      <div class="w-16 h-16 rounded-full bg-[#E0F2FE] text-[#0284C7] flex items-center justify-center mx-auto text-2xl font-black">
+        ✓
+      </div>
+      <div>
+        <span class="text-[11px] font-mono font-bold text-[#0369A1] bg-[#E0F2FE] px-2.5 py-1 rounded-full uppercase">
+          Authorization Certified
+        </span>
+        <h3 class="text-xl font-black text-[#0C4A6E] mt-2">벤치마킹 데모 승인 완료</h3>
+        <p class="text-xs text-[#64748B] mt-1.5 leading-relaxed">
+          <strong>차세대 AP 실장 시료 현장 벤치마킹 데모</strong> 추진 결재가 정상 승인되었습니다. R&D 담당 부서에 일정 착수 알림이 전송되었습니다.
+        </p>
+      </div>
+
+      <div class="bg-[#F0F7FF] rounded-2xl p-4 border border-[#BAE6FD] text-left text-xs font-mono space-y-1.5 text-[#0C4A6E]">
+        <div>• 승인 번호: <span class="font-bold">OO-OOOO-OOO</span></div>
+        <div>• 대상 장비: Cooled MWIR 숏리스트 2개사</div>
+        <div>• 다음 단계: 시료 패키지 샘플 준비 및 반출 검토</div>
+      </div>
+
+      <button onclick="closeModal('modalApproval')" class="w-full py-3 rounded-2xl bg-[#0284C7] text-white text-xs font-bold hover:bg-[#0369A1] shadow-md transition">
+        확인
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal: Reviewer Comment Input -->
+  <div id="modalComment" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 border border-[#BAE6FD] shadow-2xl space-y-4 animate-scaleUp">
+      <div class="flex items-center justify-between border-b border-[#E0F2FE] pb-3">
+        <h4 class="text-base font-extrabold text-[#0C4A6E]">경영진 검토 의견 추가</h4>
+        <button onclick="closeModal('modalComment')" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
+      </div>
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-slate-700">추가 확인 요청 사항 또는 부서 협조 메모</label>
+        <textarea id="commentInputText" rows="4" placeholder="예: 시료 반출 보안 검토 승인을 선행하고, 데모 시 파운드리 공정 엔지니어도 함께 입회할 것." class="w-full p-3 rounded-xl border border-[#BAE6FD] text-xs focus:outline-none focus:border-[#0284C7] bg-[#F0F7FF]"></textarea>
+      </div>
+      <div class="pt-3 border-t border-[#E0F2FE] flex justify-end gap-2">
+        <button onclick="closeModal('modalComment')" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">
+          취소
+        </button>
+        <button onclick="submitReviewerComment()" class="px-4 py-2 rounded-xl bg-[#0284C7] text-white text-xs font-bold hover:bg-[#0369A1] transition">
+          의견 등록 및 저장
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toastApp" class="fixed bottom-6 right-6 z-50 transform translate-y-28 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl border border-[#BAE6FD] bg-white text-slate-800">
+    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white bg-[#0284C7] font-bold text-sm" id="toastAppIcon">✓</div>
+    <div>
+      <h4 class="text-xs font-bold text-[#0C4A6E]" id="toastAppTitle">완료</h4>
+      <p class="text-[11px] text-slate-500" id="toastAppDesc">내용이 들어갑니다.</p>
+    </div>
+  </div>
+
+  <script>
+    /* Global Application State */
+    let currentThermalTime = 15; // ms
+    let currentCameraFPS = 1000; // 30 or 1000
+    let currentRevisionCount = 1; // 1, 2, 3 (기본 1회 단축 시나리오)
+    let currentMaskCost = 0; // masked
+    const equipCostBase = 0; // masked
+
+    /* Toast Notification Helper */
+    function showAppToast(title, desc, isSuccess = true) {
+      const toast = document.getElementById('toastApp');
+      document.getElementById('toastAppTitle').innerText = title;
+      document.getElementById('toastAppDesc').innerText = desc;
+      document.getElementById('toastAppIcon').innerText = isSuccess ? '✓' : 'ℹ';
+      document.getElementById('toastAppIcon').className = isSuccess 
+        ? 'w-8 h-8 rounded-full flex items-center justify-center text-white bg-[#0284C7] font-bold text-sm'
+        : 'w-8 h-8 rounded-full flex items-center justify-center text-white bg-slate-700 font-bold text-sm';
+      
+      toast.classList.remove('translate-y-28', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-28', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 2600);
+    }
+
+    /* Modal Helpers */
+    function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.classList.remove('hidden');
+    }
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.classList.add('hidden');
+    }
+
+    /* 1. Executive Summary View Mode Toggle */
+    function toggleExecutiveView(mode) {
+      const btnSummary = document.getElementById('btnModeSummary');
+      const btnDetail = document.getElementById('btnModeDetail');
+      const detailElements = document.querySelectorAll('.hidden-detail');
+
+      if (mode === 'detail') {
+        detailElements.forEach(el => el.classList.remove('hidden'));
+        btnDetail.className = "px-3.5 py-2 rounded-xl bg-white text-[#0C4A6E] font-bold shadow-sm transition";
+        btnSummary.className = "px-3.5 py-2 rounded-xl text-[#64748B] hover:text-[#0C4A6E] transition";
+        showAppToast("상세 R&D 모드", "기술적 산출 근거와 R&D 데이터 레이어가 펼쳐졌습니다.");
+      } else {
+        detailElements.forEach(el => el.classList.add('hidden'));
+        btnSummary.className = "px-3.5 py-2 rounded-xl bg-white text-[#0C4A6E] font-bold shadow-sm transition";
+        btnDetail.className = "px-3.5 py-2 rounded-xl text-[#64748B] hover:text-[#0C4A6E] transition";
+        showAppToast("핵심 요약 모드", "경영진 3분 퀵 브리핑 뷰로 전환되었습니다.");
+      }
+    }
+
+    /* 2. Heat Diffusion Canvas Simulator */
+    function drawThermalCanvas() {
+      const canvas = document.getElementById('apThermalCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+
+      // Clear Canvas Background (Dark Die Silicon)
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, width, height);
+
+      // Draw Grid Logic Layout
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.15)';
+      ctx.lineWidth = 1;
+      const step = 40;
+      for (let x = 0; x < width; x += step) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += step) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+
+      // Draw Sub-block Boundaries
+      ctx.strokeStyle = 'rgba(186, 230, 253, 0.4)';
+      ctx.strokeRect(40, 40, 140, 140); // CPU Big Core 1
+      ctx.strokeRect(200, 40, 160, 140); // Other Cores
+      ctx.strokeRect(40, 200, 320, 160); // GPU & NPU & Cache
+
+      // Heat Origin Coordinates (Big Core 1 Sub-block)
+      const originX = 110;
+      const originY = 110;
+
+      // Thermal Diffusion Radius based on Time
+      // At 0ms: radius 15
+      // At 15ms: radius 35 (contained in Big Core)
+      // At 50ms: radius 90 (crosses into other cores)
+      // At 100ms: radius 180 (spills all over die)
+      let radius = 15 + (currentThermalTime * 1.6);
+      let blurAmount = 0;
+
+      // Camera Mode Modulation
+      if (currentCameraFPS === 30) {
+        // 30Hz cameras integrate over 33.3ms, causing massive thermal blur & loss of origin
+        radius = Math.max(radius, 120);
+        blurAmount = 8;
+      }
+
+      // Heat Gradient
+      const grad = ctx.createRadialGradient(originX, originY, 4, originX, originY, radius);
+      if (currentCameraFPS === 30) {
+        // Washed out blurred heat gradient (Equalized)
+        grad.addColorStop(0, 'rgba(239, 68, 68, 0.85)');
+        grad.addColorStop(0.4, 'rgba(245, 158, 11, 0.6)');
+        grad.addColorStop(0.8, 'rgba(56, 189, 248, 0.3)');
+        grad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+      } else {
+        // Sharp Cooled InSb MWIR Gradient
+        grad.addColorStop(0, '#ffffff'); // Peak hot spot core
+        grad.addColorStop(0.2, '#ef4444');
+        grad.addColorStop(0.5, '#f59e0b');
+        grad.addColorStop(0.8, 'rgba(2, 132, 199, 0.4)');
+        grad.addColorStop(1, 'rgba(15, 23, 42, 0)');
+      }
+
+      ctx.save();
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(originX, originY, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Pinpoint Crosshair when using 1,000Hz and within 30ms
+      if (currentCameraFPS === 1000 && currentThermalTime <= 50) {
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(originX, originY, 18, 0, Math.PI * 2);
+        ctx.moveTo(originX - 25, originY);
+        ctx.lineTo(originX + 25, originY);
+        ctx.moveTo(originX, originY - 25);
+        ctx.lineTo(originX, originY + 25);
+        ctx.stroke();
+
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = 'bold 10px monospace';
+        ctx.fillText("TARGET: ALU_01", originX + 24, originY - 10);
+      }
+    }
+
+    function updateThermalSim() {
+      const slider = document.getElementById('sliderThermalTime');
+      currentThermalTime = parseInt(slider.value);
+      document.getElementById('labelTimeElapsed').innerText = `${currentThermalTime} ms`;
+
+      // Update Verdict Narrative
+      const title = document.getElementById('simVerdictTitle');
+      const desc = document.getElementById('simVerdictDesc');
+      const badge = document.getElementById('canvasStatusBadge');
+      const icon = document.getElementById('simVerdictIcon');
+      const card = document.getElementById('simVerdictCard');
+
+      if (currentCameraFPS === 30) {
+        card.className = "rounded-2xl p-5 border bg-rose-50 border-rose-200 space-y-2";
+        icon.className = "w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-bold";
+        icon.innerText = "✕";
+        title.className = "text-sm font-extrabold text-rose-900";
+        title.innerText = "30Hz 카메라: 진원지 판별 실패 (열확산 오염)";
+        desc.className = "text-xs text-rose-800 leading-relaxed";
+        desc.innerText = "프레임 주기가 33.3ms에 달해 이미 열이 다이 전체로 번진 후 촬영됩니다. 엉뚱한 인접 블록을 발열 원인으로 오인하여 마스크를 재제작하는 치명적 오류 발생.";
+        badge.className = "px-2 py-0.5 rounded text-[11px] font-mono bg-rose-900/80 text-rose-300 border border-rose-600";
+        badge.innerText = "30Hz: Thermal Equalized (False Target)";
+      } else {
+        if (currentThermalTime <= 25) {
+          card.className = "rounded-2xl p-5 border bg-[#E0F2FE] border-[#BAE6FD] space-y-2";
+          icon.className = "w-6 h-6 rounded-full bg-[#0284C7] text-white flex items-center justify-center text-xs font-bold";
+          icon.innerText = "✓";
+          title.className = "text-sm font-extrabold text-[#0C4A6E]";
+          title.innerText = `${currentThermalTime}ms - 최초 발열 진원지 100% 분리 성공`;
+          desc.className = "text-xs text-[#0369A1] leading-relaxed";
+          desc.innerText = "열이 인접 로직으로 전도되기 전입니다. CPU Big-Core #1 내부 서브블록이 발열의 원인임을 명확히 특정할 수 있어, 마스크 전체가 아닌 해당 메탈 레이어만 수정(ECO) 가능합니다.";
+          badge.className = "px-2 py-0.5 rounded text-[11px] font-mono bg-sky-900/80 text-sky-300 border border-sky-600";
+          badge.innerText = `${currentThermalTime}ms: Big-Core Pinpoint Isolated`;
+        } else if (currentThermalTime <= 50) {
+          card.className = "rounded-2xl p-5 border bg-amber-50 border-amber-200 space-y-2";
+          icon.className = "w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold";
+          icon.innerText = "!";
+          title.className = "text-sm font-extrabold text-amber-900";
+          title.innerText = `${currentThermalTime}ms - 인접 블록 전도 시작 (과도기)`;
+          desc.className = "text-xs text-amber-800 leading-relaxed";
+          desc.innerText = "열이 인접한 L2 캐시 경계로 확산 중입니다. 1,000Hz 카메라의 고속 타임랩스 역추적을 통해 10ms 이전 프레임의 최초 발열 좌표를 역산출합니다.";
+          badge.className = "px-2 py-0.5 rounded text-[11px] font-mono bg-amber-900/80 text-amber-300 border border-amber-600";
+          badge.innerText = `${currentThermalTime}ms: Diffusion to L2 Border`;
+        } else {
+          card.className = "rounded-2xl p-5 border bg-slate-100 border-slate-300 space-y-2";
+          icon.className = "w-6 h-6 rounded-full bg-slate-500 text-white flex items-center justify-center text-xs font-bold";
+          icon.innerText = "i";
+          title.className = "text-sm font-extrabold text-slate-800";
+          title.innerText = `${currentThermalTime}ms - 정상상태(Steady State) 도달`;
+          desc.className = "text-xs text-slate-600 leading-relaxed";
+          desc.innerText = "열평형 상태에 진입하여 발열원과 방열판 간의 열 저항만 측정 가능합니다. 1,000Hz 캡처 데이터를 통해서만 과도 상태 복원이 가능합니다.";
+          badge.className = "px-2 py-0.5 rounded text-[11px] font-mono bg-slate-800 text-slate-300 border border-slate-600";
+          badge.innerText = `${currentThermalTime}ms: Steady State reached`;
+        }
+      }
+
+      drawThermalCanvas();
+    }
+
+    function setCameraMode(fps) {
+      currentCameraFPS = fps;
+      const btn30 = document.getElementById('btnCam30Hz');
+      const btn1000 = document.getElementById('btnCam1000Hz');
+
+      if (fps === 30) {
+        btn30.className = "px-3 py-2 rounded-xl text-xs font-bold border border-rose-500 bg-rose-500 text-white shadow-sm transition";
+        btn1000.className = "px-3 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition";
+      } else {
+        btn1000.className = "px-3 py-2 rounded-xl text-xs font-bold border border-[#0284C7] bg-[#0284C7] text-white shadow-sm transition";
+        btn30.className = "px-3 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition";
+      }
+      updateThermalSim();
+    }
+
+    /* Modal for Bottleneck details */
+    function openBottleneckModal(type) {
+      const title = document.getElementById('modalBottleneckTitle');
+      const body = document.getElementById('modalBottleneckBody');
+
+      if (type === 'dts') {
+        title.innerText = "1. 온칩 DTS(Digital Thermal Sensor)의 한계";
+        body.innerHTML = `
+          <p><strong>위치 고정의 맹점:</strong> 10mm AP 다이에 집적되는 수십억 개의 트랜지스터 중 DTS 센서는 단 4~8개 지점에만 고정 배치됩니다.</p>
+          <p><strong>블라인드 스팟(Blind Spot):</strong> 센서와 단 0.3mm 떨어진 로직 서브블록에서 90°C 과도 발열이 일어나도, DTS 센서에는 열이 도달하지 않아 55°C 정상으로 보고됩니다.</p>
+          <p class="text-rose-600 font-semibold">• 결과: 원인 모를 쓰로틀링(Throttling) 및 칩 다운 발생 시 원인 규명 불가.</p>
+        `;
+      } else if (type === 'thermocouple') {
+        title.innerText = "2. 접촉식 열전대(Thermocouple)의 한계";
+        body.innerHTML = `
+          <p><strong>히트 싱크 효과(Heat-sinking Effect):</strong> 직경 수백 μm의 금속선(Thermocouple)을 실리콘 표면에 접촉하는 순간, 금속선을 통해 열이 빠져나가 측정 대상 지점 온도가 5~15°C 급감합니다.</p>
+          <p><strong>공간 해상도 부재:</strong> 접촉 포인트 하나의 평균 온도시그널만 제공하므로, 2차원 발열 맵을 생성할 수 없습니다.</p>
+          <p class="text-rose-600 font-semibold">• 결과: 마이크로 범프 파손 리스크 및 왜곡된 온도 데이터로 인한 설계 오류.</p>
+        `;
+      } else {
+        title.innerText = "3. 저속 열화상 카메라 (9~30Hz)의 한계";
+        body.innerHTML = `
+          <p><strong>실리콘의 열전도도(Thermal Diffusivity):</strong> 실리콘(Si)은 구리 못지않게 열전도율이 우수하여 10~50ms 안에 수 mm 이상으로 열이 번집니다.</p>
+          <p><strong>시간 분해능 결핍:</strong> 30Hz 카메라는 첫 프레임이 33.3ms, 두 번째가 66.6ms입니다. 첫 사진을 찍었을 때는 이미 열이 전체 코어로 퍼진 상태(Thermal Equilibrium)입니다.</p>
+          <p class="text-rose-600 font-semibold">• 결과: 발열 시작점이 아닌 '열이 모여 머무는 곳'을 범인으로 착각하여 마스크 수정 실패.</p>
+        `;
+      }
+      openModal('modalBottleneck');
+    }
+
+    /* 3. The 4 Non-Negotiable Specs Interactive Screen */
+    const specDetailsData = {
+      1: {
+        title: "스펙 ① 센서 해상도 (1280×1024 vs 320×240)",
+        bad: "픽셀 크기가 너무 커서 AP 다이 전체를 보면 빅코어 1개가 단 2~3개 픽셀로 뭉개집니다. 핫스팟이 코어 내부인지 주변 버스선인지 판별이 불가능하여 잘못된 회로를 수정하게 됩니다.",
+        good: "131만 화소의 고밀도로 칩 전체를 한눈에 보면서도 돋보기 렌즈 연동 시 각 코어의 ALU, 레지스터 파일, 캐시 태그 블록의 발열 경계선이 칼같이 명확하게 분리 관측됩니다."
+      },
+      2: {
+        title: "스펙 ② 공간 분해능 (3~5 μm vs 51~170 μm)",
+        bad: "분해능이 51μm 이상이면 가로세로 수백 μm 크기의 CPU 코어와 인접 L3 캐시 메모리가 한 덩어리로 합쳐져 보입니다. 캐시 메모리의 누설 전류인지 코어의 연산 발열인지 구별할 수 없습니다.",
+        good: "현미경 대물렌즈를 통해 픽셀당 3~5μm의 초미세 공간 분해능을 구현합니다. 서브블록 단위의 핀포인트 분석이 가능해져 국소적 레이아웃 ECO(Engineering Change Order)만으로 수정을 종결합니다."
+      },
+      3: {
+        title: "스펙 ③ 프레임 레이트 (1,000+ Hz vs 30 Hz)",
+        bad: "30Hz는 33ms마다 한 번씩만 셔터를 누릅니다. 10ms에 시작되어 25ms에 최고점에 달하는 순간 과도 핫스팟은 단 한 장의 프레임에도 포착되지 않고 사라지거나 번져버립니다.",
+        good: "윈도잉 모드에서 초당 1,000프레임 이상(1ms 간격)으로 실시간 고속 스트리밍합니다. 전력 인가 직후 10~50ms 사이의 열 전달 전파 경로를 슬로우 비디오처럼 역추적할 수 있습니다."
+      },
+      4: {
+        title: "스펙 ④ 센서 종류 (Cooled InSb vs Uncooled Microbolometer)",
+        bad: "비냉각 볼로미터 센서는 상온에서 작동하므로 자체 열잡음이 크고 센서 반응 시상수(Time Constant)가 8~12ms에 달해 빠른 온도 변화를 측정 센서 자체가 따라가지 못합니다.",
+        good: "스털링 냉동기로 센서를 영하 196°C로 냉각하는 Cooled InSb 광자 검출기(Photon Detector)는 센서 반응 속도가 나노초(ns) 단위이며 NETD ≤ 20mK의 극도로 정밀한 감도를 제공합니다."
+      }
+    };
+
+    function selectSpecDetail(id) {
+      for (let i = 1; i <= 4; i++) {
+        const card = document.getElementById(`specCard${i}`);
+        if (i === id) {
+          card.classList.remove('border-transparent');
+          card.classList.add('border-[#0284C7]');
+        } else {
+          card.classList.remove('border-[#0284C7]');
+          card.classList.add('border-transparent');
+        }
+      }
+      const data = specDetailsData[id];
+      document.getElementById('activeSpecTitle').innerText = data.title;
+      document.getElementById('specComparisonBadDesc').innerText = data.bad;
+      document.getElementById('specComparisonGoodDesc').innerText = data.good;
+    }
+
+    /* 4. Equipment Comparison Filter & Radar Chart */
+    let radarChartInstance = null;
+
+    function initRadarChart() {
+      const ctx = document.getElementById('radarCompareCanvas').getContext('2d');
+      radarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: [
+            '센서 시력 (해상도)',
+            '미세 분해능 (3μm)',
+            '초고속 셔터 (1,000Hz)',
+            '정밀 감도 (NETD)',
+            '과도발열 포착능력'
+          ],
+          datasets: [
+            {
+              label: '★ Cooled MWIR (권고 모델)',
+              data: [95, 95, 98, 95, 100],
+              fill: true,
+              backgroundColor: 'rgba(2, 132, 199, 0.25)',
+              borderColor: '#0284C7',
+              pointBackgroundColor: '#0284C7',
+              pointBorderColor: '#fff',
+              pointHoverBackgroundColor: '#fff',
+              pointHoverBorderColor: '#0284C7',
+              borderWidth: 2.5
+            },
+            {
+              label: 'FLIR T1010 (휴대용)',
+              data: [75, 45, 30, 70, 25],
+              fill: true,
+              backgroundColor: 'rgba(245, 158, 11, 0.15)',
+              borderColor: '#f59e0b',
+              pointBackgroundColor: '#f59e0b',
+              pointBorderColor: '#fff',
+              borderWidth: 1.5
+            },
+            {
+              label: 'FLIR ETS320 (탁상용)',
+              data: [25, 15, 10, 30, 5],
+              fill: true,
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              borderColor: '#ef4444',
+              pointBackgroundColor: '#ef4444',
+              pointBorderColor: '#fff',
+              borderWidth: 1.5
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            r: {
+              angleLines: { color: 'rgba(186, 230, 253, 0.5)' },
+              grid: { color: 'rgba(186, 230, 253, 0.6)' },
+              pointLabels: {
+                font: { family: 'Pretendard', size: 11, weight: 'bold' },
+                color: '#0C4A6E'
+              },
+              ticks: { display: false, min: 0, max: 100 }
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                boxWidth: 12,
+                font: { family: 'Pretendard', size: 11, weight: '600' },
+                color: '#475569'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function setCompareView(view) {
+      const tableWrapper = document.getElementById('tableCompareWrapper');
+      const radarWrapper = document.getElementById('radarChartWrapper');
+      const btnAll = document.getElementById('btnCompTabAll');
+      const btnSpecs = document.getElementById('btnCompTabSpecs');
+      const btnRadar = document.getElementById('btnCompTabRadar');
+
+      // Reset buttons
+      [btnAll, btnSpecs, btnRadar].forEach(b => {
+        b.className = "px-3 py-1.5 rounded-xl text-slate-600 hover:text-slate-900";
+      });
+
+      if (view === 'radar') {
+        tableWrapper.classList.add('hidden');
+        radarWrapper.classList.remove('hidden');
+        btnRadar.className = "px-3 py-1.5 rounded-xl bg-[#0284C7] text-white";
+        if (!radarChartInstance) initRadarChart();
+      } else {
+        radarWrapper.classList.add('hidden');
+        tableWrapper.classList.remove('hidden');
+        if (view === 'all') {
+          btnAll.className = "px-3 py-1.5 rounded-xl bg-[#0284C7] text-white";
+        } else {
+          btnSpecs.className = "px-3 py-1.5 rounded-xl bg-[#0284C7] text-white";
+        }
+      }
+    }
+
+    /* 5. Business Case & ROI Simulator Calculation */
+    function setRevisionCount(count) {
+      currentRevisionCount = count;
+      for (let i = 1; i <= 3; i++) {
+        const btn = document.getElementById(`btnRev${i}`);
+        if (i === count) {
+          btn.className = "py-3 px-3 rounded-2xl border-2 border-[#0284C7] bg-[#E0F2FE] text-xs font-extrabold text-[#0284C7] shadow-sm transition text-center";
+        } else {
+          btn.className = "py-3 px-3 rounded-2xl border-2 border-slate-200 text-xs font-bold text-slate-600 hover:border-[#BAE6FD] transition text-center";
+        }
+      }
+      calculateFinancialROI();
+    }
+
+    function calculateFinancialROI() {
+      // 금액 관련 값은 보안상 OO로 마스킹 (계산식 구조만 표시)
+      const n = currentRevisionCount;
+      document.getElementById('displayMaskCost').innerText = 'OO억 원';
+      document.getElementById('resultNetBenefit').innerHTML = '+OO<span class="text-xl font-sans font-bold ml-1 text-[#0C4A6E]">억 원</span>';
+      document.getElementById('resultGrossSavings').innerText = `${n}회 × OO억 원`;
+      document.getElementById('resultRoiPercent').innerText = 'OO%';
+      document.getElementById('resultFormulaDesc').innerText = `총 절감액(${n}회 × 마스크 OO억 원) - 장비비 OO억 원`;
+      document.getElementById('resultRoiBar').style.width = `${[0,45,70,95][n]}%`;
+    }
+
+    /* 6. Sign-off Action Handlers */
+    function approveDemoAction() {
+      openModal('modalApproval');
+    }
+
+    function openDecisionModal(type) {
+      if (type === 'comment') {
+        openModal('modalComment');
+      }
+    }
+
+    function submitReviewerComment() {
+      const text = document.getElementById('commentInputText').value.trim();
+      closeModal('modalComment');
+      if (text) {
+        showAppToast("의견 등록 완료", "검토 의견이 제안서 안건 파일에 기록되었습니다.");
+      } else {
+        showAppToast("메모 없음", "추가 의견 없이 기본 승인 대기로 유지됩니다.", false);
+      }
+    }
+
+    /* Reading Progress Bar Update */
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (scrollTop / docHeight) * 100;
+      document.getElementById('scrollProgress').style.width = `${progress}%`;
+    });
+
+    /* Safe Clipboard Copy (Fallback for iFrames) */
+    function safeClipboardCopy(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Copy fallback failed: ', err);
+      }
+      document.body.removeChild(textarea);
+    }
+
+    /* Initial Setup on Page Load */
+    window.addEventListener('DOMContentLoaded', () => {
+      updateThermalSim();
+      calculateFinancialROI();
+    });
+  </script>
+</body>
+</html>
